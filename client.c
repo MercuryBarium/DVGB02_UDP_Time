@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     
-    sendto(client_socket, &outgoing, 1, 0, (struct sockaddr*)&server_addr, server_addr_len);
+    sendto(client_socket, outgoing, 1, 0, (struct sockaddr*)&server_addr, server_addr_len);
 
     close(client_socket);
     return 0;
