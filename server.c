@@ -9,6 +9,27 @@
 #include <time.h>
 #include "common.h"
 
+/*
+https://www.rfc-editor.org/rfc/rfc868
+[...]
+The time is the number of seconds since 00:00 (midnight) 1 January 1900
+GMT, such that the time 1 is 12:00:01 am on 1 January 1900 GMT; this
+base will serve until the year 2036.
+
+For example:
+
+   the time  2,208,988,800 corresponds to 00:00  1 Jan 1970 GMT,
+
+             2,398,291,200 corresponds to 00:00  1 Jan 1976 GMT,
+
+             2,524,521,600 corresponds to 00:00  1 Jan 1980 GMT,
+
+             2,629,584,000 corresponds to 00:00  1 May 1983 GMT,
+
+        and -1,297,728,000 corresponds to 00:00 17 Nov 1858 GMT.
+*/
+#define TIME_1900_S_1970 2208988800
+
 int my_socket;
 
 void sigint_handler(int sig)
@@ -22,15 +43,6 @@ void sigint_handler(int sig)
 
 int main(int argc, char const *argv[])
 {
-    time_t now;
-
-    struct tm start_date;
-    start_date.tm_hour = 0; // 00:00
-    start_date.tm_year = 0; // 1900
-    start_date.tm_mday = 1; // Jan 1st
-    start_date.tm_mon = 0;  // Jan
-
-
     if (argc < 2)
     {
         printf("Missing argument port.\n");
@@ -70,15 +82,15 @@ int main(int argc, char const *argv[])
                 printf("Connection from (%s:%d): UDP Packet is not empty, ignoring.\n", ip, (unsigned short)client_address.sin_port);
             else
             {
-                printf("Connection from (%s:%d)\n", ip, (unsigned short)client_address.sin_port);
-                unsigned int t;
-                memset((void*)&t, 0, sizeof(unsigned int));
-                t = htonl((unsigned int)time(NULL));
-                if (sendto(my_socket, (void*)&t, sizeof(unsigned int), 0, (struct sockaddr*)&client_address, addr_len) < 0)
-                    printf("Faaan");
+                time_t t = time(NULL)+TIME_1900_S_1970;
+
+                unsigned long prep = htonl(t);
+
+                if (sendto(my_socket, (void*)&prep, sizeof(unsigned long), 0, (struct sockaddr*)&client_address, addr_len) < 0)
+                    printf("Error Could Not Send!\n");
                 else
                 {
-                    printf("Sending time()\t->\t %u\n\n", t);
+                    printf("Connection from (%s:%d)\n", ip, (unsigned short)client_address.sin_port);
                 }
             }
         }
