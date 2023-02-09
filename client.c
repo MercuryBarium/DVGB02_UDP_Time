@@ -22,12 +22,12 @@ int get_ip(int argc, char *argv[], int port, struct sockaddr_in sa)
 {
     if (inet_pton(AF_INET, argv[1], &sa.sin_addr) == 1)
     {
-        printf("Connecting to: %d.%d.%d.%d:%d\n",
+        /*printf("Connecting to: %d.%d.%d.%d:%d\n",
                sa.sin_addr.s_addr & 0xff,
                (sa.sin_addr.s_addr >> 8) & 0xff,
                (sa.sin_addr.s_addr >> 16) & 0xff,
                (sa.sin_addr.s_addr >> 24) & 0xff,
-               port);
+               port);*/
         return 1;
     }
     else
@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
     if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
         printf("Not Good!\n");
     client_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    //client_addr.sin_port = htons(52365);
     char outgoing[BUFFER_SIZE];
     memset(outgoing, 0, BUFFER_SIZE);
     socklen_t client_addr_len = (socklen_t)sizeof(client_addr);
@@ -84,9 +83,22 @@ int main(int argc, char *argv[])
     else
     {
         unsigned int t;
-        int size = recvfrom(client_socket, (void *)&t, sizeof(unsigned int), 0, (struct sockaddr *)&server_addr, &server_addr_len);
+        unsigned int local = time(NULL);    //  Our time
+        int size = recvfrom(client_socket, (void *)&t, BUFFER_SIZE, 0, (struct sockaddr *)&server_addr, &server_addr_len);
         if (size)
         {
+            printf("size:%d\n",size);
+            t = ntohl(t)-TIME_1900_TO_1970;
+            time_t prep = (time_t)t;
+            int diff = ((int)local)-((int)t);
+            printf("%s\tDifference:%d\n",ctime(&prep), diff);
+            if (diff <= 0 && diff >= -1)
+            {
+                
+                printf("yahooo!\n\tOur time: %s\n\tTheir time: %s", ctime();
+            }
+            else
+                printf("Nahoo!")
         }
         else
             printf("Not Good\n");
