@@ -94,11 +94,11 @@ int main(int argc, char *argv[])
             printf("%s\tDifference:%d\n",ctime(&prep), diff);
             if (diff <= 0 && diff >= -1)
             {
-                
-                printf("yahooo!\n\tOur time: %s\n\tTheir time: %s", ctime();
+                time_t o = (time_t)local;
+                printf("yahooo!\n\tOur time: %s\n\tTheir time: %s\n\tDiff: %d\n", ctime(&o), ctime(&prep), diff);
             }
             else
-                printf("Nahoo!")
+                printf("Nahoo!");
         }
         else
             printf("Not Good\n");
